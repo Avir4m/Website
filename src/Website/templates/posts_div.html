@@ -1,0 +1,138 @@
+{% extends "base.html"%}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h3 align="center">{% block header %}Posts{% endblock %}</h3>
+<br/>
+<div id="posts">
+  {% for post in posts %}
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-text" style="max-width: 90%;">
+            <h4>{{  post.title  }}</h4>
+            <div class="">
+                Posted by <a style="color: black; text-decoration: none;" 
+                            href="{{ url_for('views.user', username=post.user.username) }}" >
+                            {{  post.user.username  }}</a>  • {{ post.date_created  }}
+            </div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn" data-toggle="dropdown">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                  <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                </svg>
+          </button>
+          <div class="dropdown-menu">
+            {% if user.id == post.author %}
+            <a class="dropdown-item" href="#">Edit</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{{ url_for('ctrl.delete_post', id=post.id) }}">Delete</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+          <div class="card-text">{{  post.text  }}</div>
+          <br/>
+          {{ post.likes|length }}
+          <br/>
+          <p class="card-text">
+            <ul class="list-group list-group-horizontal">
+              <li class="list-group-item">
+                {% if post.comments|length > 0 %}
+                <a data-toggle="collapse"
+                href="#comments-{{post.id}}" 
+                role="button"
+                style="color: black; text-decoration: none;" >
+                {% if post.comments|length > 1 %}
+                  <small>{{ post.comments|length }} Comments</small>
+                {% else %}
+                <small>{{ post.comments|length }} Comment</small>
+                {% endif %}
+                </a>
+              {% else %}
+                <small class="text-muted">0 comments</small>
+              {% endif %}
+              </li>
+              {% if user.id in post.likes|map(attribute="author")|list %}
+              <li class="list-group-item">
+                <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
+                style="color: black; text-decoration: none;"> 
+                  <small>Unlike</small>
+                </a>
+              </li>
+              {% else %}
+              <li class="list-group-item">
+                <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
+                style="color: black; text-decoration: none;"> 
+                  <small>Like</small>
+                </a>
+              </li>
+              {% endif %}
+              <li class="list-group-item">
+                <small>Save</small>
+              </li>
+              <li class="list-group-item">
+                <small>Share</small>
+              </li>
+            </ul>
+          </p>
+          <div class="collapse" id="comments-{{post.id}}">
+            <div class="card">
+              <div class="card-body" id="comment-expanded-{{post.id}}">
+                {% for comment in post.comments %}
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <a 
+                      href="/user/{{comment.user.username}}"
+                      style="color: black; text-decoration: none;" >
+                        {{ comment.user.username }}
+                      </a>: {{ comment.text }}
+                    </div>
+                    <div>
+                      <small class="text-muted">
+                        {{ comment.date_created }}
+                      </small>
+                        <button type="button" class="btn" data-toggle="dropdown">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            </svg>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Edit</a>
+                        {% if comment.author == current_user.id or current_user.id == post.author %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('ctrl.delete_comment', comment_id=comment.id )}}">Delete</a>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <br/>
+          </div>
+          <form
+          class="input-group mb-3"
+          method="POST"
+          action="/create-comment/{{post.id}}">
+          <input
+            type="text"
+            id="text"
+            name="text"
+            class="form-control"
+            placeholder="Comment"/>
+          <button type="submit" class="btn btn-primary">Comment</button>
+          </form>
+      </div>
+    </div>
+  <br/>
+  {% endfor %}
+</div>
+<br/>
+{% block footer %}
+<div align="center">
+    <a href="{{ url_for('ctrl.create_post') }}"><button type="submit" class="btn btn-lg btn-primary">Create Post</button></a>
+</div>
+{% endblock %}
+{% endblock %}
