@@ -137,3 +137,47 @@ def like_post(post_id):
         db.session.commit()
         
     return redirect(url_for('views.home'))
+
+@ctrl.route('edit-post/<post_id>', methods=['POST', 'GET'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.filter_by(id=post_id).first()
+    if request.method == 'POST':
+        if not post:
+            flash('This post does not exist.', category='error')
+        elif post.author != current_user.id:
+            flash('You are not allowed to edit this post.', category='error')
+        else:
+            new_post_title = request.form.get('newPostTitle')
+            new_post_text = request.form.get('newPostText')
+            
+            post.title = new_post_title
+            post.text = new_post_text
+            post.edited = True
+            db.session.commit()
+            flash('Post has been updated.', category='success')
+            
+            return redirect(url_for('views.home'))
+    else:
+        return render_template('edit_post.html', user=current_user, post=post)
+    
+@ctrl.route('edit-comment/<comment_id>', methods=['POST', 'GET'])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+    if request.method == 'POST':
+        if not comment:
+            flash('This post does not exist.', category='error')
+        elif comment.author != current_user.id:
+            flash('You are not allowed to edit this post.', category='error')
+        else:
+            new_comment = request.form.get('newComment')
+            
+            comment.text = new_comment
+            comment.edited = True
+            db.session.commit()
+            flash('Comment has been updated.', category='success')
+            
+            return redirect(url_for('views.home'))
+    else:
+        return render_template('edit_comment.html', user=current_user, comment=comment)

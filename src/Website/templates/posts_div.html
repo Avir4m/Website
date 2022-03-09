@@ -8,12 +8,15 @@
   {% for post in posts %}
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <div class="card-text" style="max-width: 90%;">
+        <div class="card-text" style="max-width:90%;">
             <h4>{{  post.title  }}</h4>
-            <div class="">
-                Posted by <a style="color: black; text-decoration: none;" 
-                            href="{{ url_for('views.user', username=post.user.username) }}" >
-                            {{  post.user.username  }}</a>  • {{ post.date_created  }}
+            <div class="text-muted">
+                Posted by <a style="text-decoration: none;" 
+                            href="{{ url_for('views.user', username=post.user.username) }}" class="text-muted" >
+                            @{{  post.user.username  }}</a>  • {{ post.date_created  }}
+                            {% if post.edited == True %}
+                            • Edited
+                            {% endif %}
             </div>
         </div>
         <div class="btn-group">
@@ -24,7 +27,7 @@
           </button>
           <div class="dropdown-menu">
             {% if user.id == post.author %}
-            <a class="dropdown-item" href="#">Edit</a>
+            <a class="dropdown-item" href="{{ url_for('ctrl.edit_post', post_id=post.id) }}">Edit</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{{ url_for('ctrl.delete_post', id=post.id) }}">Delete</a>
             {% endif %}
@@ -34,8 +37,7 @@
       <div class="card-body">
           <div class="card-text">{{  post.text  }}</div>
           <br/>
-          {{ post.likes|length }}
-          <br/>
+          <small>{{ post.likes|length }} Likes</small>
           <p class="card-text">
             <ul class="list-group list-group-horizontal">
               <li class="list-group-item">
@@ -92,6 +94,9 @@
                     <div>
                       <small class="text-muted">
                         {{ comment.date_created }}
+                        {% if comment.edited == True %}
+                        • Edited
+                        {% endif %}
                       </small>
                         <button type="button" class="btn" data-toggle="dropdown">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
@@ -99,9 +104,10 @@
                             </svg>
                       </button>
                       <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Edit</a>
+                        <a class="dropdown-item" href="{{ url_for('views.user', username=comment.user.username)}}">Go to Profile</a>
                         {% if comment.author == current_user.id or current_user.id == post.author %}
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('ctrl.edit_comment', comment_id=comment.id )}}">Edit</a>
                         <a class="dropdown-item" href="{{ url_for('ctrl.delete_comment', comment_id=comment.id )}}">Delete</a>
                       </div>
                       {% endif %}
