@@ -28,10 +28,10 @@ def create_post():
             
     return render_template('create_post.html', user=current_user)
 
-@ctrl.route('/delete-post/<id>')
+@ctrl.route('/delete-post/<post_id>')
 @login_required
-def delete_post(id):
-    post = Post.query.filter_by(id=id).first()
+def delete_post(post_id):
+    post = Post.query.filter_by(id=post_id).first()
     
     if not post:
         flash('Post does not exists.', category='error')
@@ -52,12 +52,12 @@ def delete_post(id):
         
     return redirect(url_for('views.home'))
 
-@ctrl.route('/delete-user/<id>', methods=['POST', 'GET'])
+@ctrl.route('/delete-user/<user_id>', methods=['POST', 'GET'])
 @login_required
-def delete_user(id):
+def delete_user(user_id):
     per = current_user.permissions # Permissions
     if per >= 1:
-        user = User.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=user_id).first()
         posts = Post.query.filter_by(author=user.id).all()
         comments = Comment.query.filter_by(author=user.id).all()
         likes = Like.query.filter_by(author=user.id).all()
@@ -101,6 +101,7 @@ def create_comment(post_id):
             comment = Comment(text=text, author=current_user.id, post_id=post_id)
             db.session.add(comment)
             db.session.commit()
+            flash('Comment has been created.', category='success')
         else:
             flash('Post does not exist.', category='error')
 
@@ -118,6 +119,7 @@ def delete_comment(comment_id):
     else:
         db.session.delete(comment)
         db.session.commit()
+        flash('Comment has been deleted.', category='success')
 
     return redirect(url_for('views.home'))
 
@@ -151,13 +153,19 @@ def edit_post(post_id):
             new_post_title = request.form.get('newPostTitle')
             new_post_text = request.form.get('newPostText')
             
-            post.title = new_post_title
-            post.text = new_post_text
-            post.edited = True
-            db.session.commit()
-            flash('Post has been updated.', category='success')
+            if new_post_title == '':
+                flash('Post title cannot be empty.', category='error')
+            elif new_post_text == '':
+                flash('Post text cannot be empty.', category='error')
+            else:
+                post.title = new_post_title
+                post.text = new_post_text
+                post.edited = True
+                db.session.commit()
+                flash('Post has been updated.', category='success')
+                return redirect(url_for('views.home'))
             
-            return redirect(url_for('views.home'))
+            return render_template('edit_post.html', user=current_user, post=post)
     else:
         return render_template('edit_post.html', user=current_user, post=post)
     
@@ -172,12 +180,15 @@ def edit_comment(comment_id):
             flash('You are not allowed to edit this post.', category='error')
         else:
             new_comment = request.form.get('newComment')
-            
-            comment.text = new_comment
-            comment.edited = True
-            db.session.commit()
-            flash('Comment has been updated.', category='success')
-            
-            return redirect(url_for('views.home'))
+            if new_comment == '':
+                flash('Comment cannot be empty.', category='error')
+            else:       
+                comment.text = new_comment
+                comment.edited = True
+                db.session.commit()
+                flash('Comment has been updated.', category='success')
+                return redirect(url_for('views.home'))
+                
+        return render_template('edit_comment.html', user=current_user, comment=comment)
     else:
         return render_template('edit_comment.html', user=current_user, comment=comment)

@@ -9,6 +9,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150), nullable=True)
+    description = db.Column(db.String(200), nullable=False, default="")
     date_joined = db.Column(db.DateTime(timezone=True), default=func.now())
     permissions = db.Column(db.Integer())
     verified = db.Column(db.Boolean())

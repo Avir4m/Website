@@ -7,7 +7,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3>Login</h3>
+                    <h3 align="center">Login</h3>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
@@ -17,7 +17,8 @@
                         class="form-control" 
                         id="email" 
                         name="email" 
-                        placeholder="Enter your email address"/>
+                        placeholder="Enter your email address"
+                        />
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -26,19 +27,24 @@
                         class="form-control" 
                         id="password" 
                         name="password" 
-                        placeholder="Enter password"/>
-                        <a href="{{ url_for('auth.forgot_password') }}">Forgot Password</a>
+                        placeholder="Enter password"
+                        />
+                        <small><a href="{{ url_for('auth.forgot_password') }}">Forgot Password</a></small>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe" name="check">
-                        <label for="rememberMe">Remember Me</label>
+                        <input class="form-check-input" type="checkbox" id="flexCheckChecked" name="check">
+                        <label class="form-check-label" for="flexCheckChecked">Remember Me</label>
                     </div>
                     <br/>
+                    <small><p>Need an account? <a href="sign-up">Sign up</a></p></small>
+                    {% if darkmode == True %}
+                    <button type="submit" class="btn btn-success">Login</button>
+                    {% else %}
                     <button type="submit" class="btn btn-primary">Login</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    <p>Need an account? <a href="sign-up">Sign up</a></p>
 </form>
 {% endblock %}

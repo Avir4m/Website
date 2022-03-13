@@ -1,10 +1,56 @@
 {% extends "posts_div.html"%}
-{% block title %}{{ username }}'s Profile{% endblock %}
+{% block title %}{{ username.username }}'s Profile{% endblock %}
 {% block header %}
-{{ username }}'s Profile
-{% endblock %}
-{% block footer %}
-<div align="center">
-    <a href="{{ url_for('views.home') }}"><button type="submit" class="btn btn-lg btn-primary">Back</button></a>
+<div align="left">
+    <h2>{{ username.username }}'s Profile</h2>
+    <br/>
 </div>
+<div class="card">
+    <div class="card-header">
+        <div align="center">
+            <h3>{{ username.username }}</h3>
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+
+            <div class="container">
+                <div class="row">
+                <div class="col-8">
+    
+                    <strong>Name:</strong>
+                    {{ user.first_name }} {{ user.last_name }}<br/>
+    
+                    <strong>Username:</strong>
+                    {{ user.username }}<br/>
+
+                    <strong>Description:</strong>
+                    {{ user.description }}<br/>
+    
+                </div>
+    
+                <div class="col-4">
+                    <img 
+                    align="right" 
+                    src="{{ url_for('static', filename='images/default_profile_pic.jpg') }}" 
+                    class="img-fluid" 
+                    alt="Responsive image" 
+                    width="60%" 
+                    style="border-radius: 5%;"> 
+                </div>
+                </div>
+            </div>
+        </p>
+        {% if user.id == username.id %}
+        <a class="nav-item nav-link" id="user" href="{{ url_for('views.dashboard', username=user.username) }}">
+            <button type="submit" class="btn btn-sm btn-primary">Edit Profile</button>
+        </a>
+        {% endif %}
+    </div>
+</div>
+    {% endblock %}
+    {% block footer %}
+    <div align="center">
+        <a href="{{ url_for('views.home') }}"><button type="submit" class="btn btn-lg btn-primary">Back</button></a>
+    </div>
 {% endblock %}

@@ -1,10 +1,12 @@
 from flask import Blueprint, abort, render_template, request, flash, redirect, url_for
-from .models import User
-from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
 from flask_login import login_user, login_required, logout_user, current_user
+
+from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 import smtplib
+
+from . import db
+from .models import User
 
 auth = Blueprint('auth', __name__)
 
@@ -27,7 +29,7 @@ def send_email(email, msg):
 
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -51,14 +53,14 @@ def login():
     return render_template('login.html', user=current_user)
 
 
-@auth.route('/logout')
+@auth.route('/logout/')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))    
 
 
-@auth.route('/sign-up', methods=['POST', 'GET'])
+@auth.route('/sign-up/', methods=['POST', 'GET'])
 def sign_up():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -100,7 +102,7 @@ def sign_up():
             return redirect(url_for('views.home'))
         
     return render_template('signup.html', user=current_user)
-@auth.route('/change_password', methods=['POST', 'GET'])
+@auth.route('/change_password/', methods=['POST', 'GET'])
 @login_required
 def change_password():
     if request.method == 'POST':
@@ -131,7 +133,7 @@ def change_password():
             
     return render_template('change_password.html', user=current_user)
 
-@auth.route('/forgot_password', methods=['POST', 'GET'])
+@auth.route('/forgot_password/', methods=['POST', 'GET'])
 def forgot_password():
     if request.method == 'POST':
         
@@ -150,7 +152,7 @@ def forgot_password():
         
     return render_template('forgot_password.html', user=current_user)
 
-@auth.route('/verify_email')
+@auth.route('/verify_email/')
 def verify_email():
     user = current_user
     email = user.email
@@ -161,7 +163,7 @@ def verify_email():
     send_email(email, msg)
     return redirect(url_for('views.dashboard'))
 
-@auth.route('/confirm_email/<token>')
+@auth.route('/confirm_email/<token>/')
 @login_required
 def confirm_email(token):
     user = current_user
@@ -177,7 +179,7 @@ def confirm_email(token):
     except SignatureExpired:
        abort(404)
        
-@auth.route('/reset_password/<token>', methods=['POST', 'GET'])
+@auth.route('/reset_password/<token>/', methods=['POST', 'GET'])
 def reset_password(token):
     try:
         email = s.loads(token, salt='reset-password', max_age=600) # 600 Seconds (10 minutes)

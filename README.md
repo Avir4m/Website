@@ -1,10 +1,11 @@
 Website
 
-Version / 0.06 (Alpha)
+Version / 0.07 (Alpha)
 
 Changes:
 
-- Added a way to edit posts/comments
-- Added a "Go to profile" button on comments
-- Added a edited status to posts/comments when getting edited
-- Changed the dashboard route
+- Fixed bug when editing post/comment, which can make post/comment empty.
+- Added user description
+- Added icons to the website
+- Changed posts/comments look
+- Changed user page to look nicer
