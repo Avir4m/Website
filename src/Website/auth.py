@@ -6,7 +6,7 @@ from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 import smtplib
 
 from . import db
-from .models import User
+from .models import User, Post, Comment, Like, Saved
 
 auth = Blueprint('auth', __name__)
 
@@ -28,6 +28,7 @@ def send_email(email, msg):
     server.quit()
 
 
+# Auth
 
 @auth.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -102,6 +103,9 @@ def sign_up():
             return redirect(url_for('views.home'))
         
     return render_template('signup.html', user=current_user)
+
+# Password
+
 @auth.route('/change_password/', methods=['POST', 'GET'])
 @login_required
 def change_password():
@@ -152,33 +156,7 @@ def forgot_password():
         
     return render_template('forgot_password.html', user=current_user)
 
-@auth.route('/verify_email/')
-def verify_email():
-    user = current_user
-    email = user.email
 
-    token = s.dumps(email, salt='email-confirm')
-    link = url_for('auth.confirm_email', token=token, _external=True)
-    msg = f'Email confirmation\n {link}'
-    send_email(email, msg)
-    return redirect(url_for('views.dashboard', username=user.username))
-
-@auth.route('/confirm_email/<token>/')
-@login_required
-def confirm_email(token):
-    user = current_user
-    try:
-        email = s.loads(token, salt='email-confirm', max_age=3600) # 3600 Seconds (1 Hour)
-        if email == user.email:
-            user.verified = True
-            db.session.commit()
-            flash('Account is now verified!', category='success')
-            return redirect(url_for('views.home'))
-        else:
-            flash('Invalid token', category='error')
-    except SignatureExpired:
-       abort(404)
-       
 @auth.route('/reset_password/<token>/', methods=['POST', 'GET'])
 def reset_password(token):
     try:
@@ -208,4 +186,74 @@ def reset_password(token):
     except SignatureExpired:
         abort(404)
         
+# Email
+
+@auth.route('/verify_email/')
+def verify_email():
+    user = current_user
+    email = user.email
+
+    token = s.dumps(email, salt='email-confirm')
+    link = url_for('auth.confirm_email', token=token, _external=True)
+    msg = f'Email confirmation\n {link}'
+    send_email(email, msg)
+    return redirect(url_for('views.dashboard', username=user.username))
+
+@auth.route('/confirm_email/<token>/')
+@login_required
+def confirm_email(token):
+    user = current_user
+    try:
+        email = s.loads(token, salt='email-confirm', max_age=3600) # 3600 Seconds (1 Hour)
+        if email == user.email:
+            user.verified = True
+            db.session.commit()
+            flash('Account is now verified!', category='success')
+            return redirect(url_for('views.home'))
+        else:
+            flash('Invalid token', category='error')
+    except SignatureExpired:
+       abort(404)
+
+# User
+
+@auth.route('/delete-user/<user_id>/', methods=['POST', 'GET'])
+@login_required
+def delete_user(user_id):
+    per = current_user.permissions # Permissions
+    if per >= 1:
+        user = User.query.filter_by(id=user_id).first()
+        posts = Post.query.filter_by(author=user.id).all()
+        comments = Comment.query.filter_by(author=user.id).all()
+        likes = Like.query.filter_by(author=user.id).all()
+        saves = Saved.query.filter_by(author=user.id).all
+        if posts or comments or likes or saves:
+            for post in posts:
+                db.session.delete(post)
+                db.session.commit()
+            for comment in comments:
+                db.session.delete(comment)
+                db.session.commit()
+            for like in likes:
+                db.session.delete(like)
+                db.session.commit()
+            for save in saves:
+                db.session.delete(save)
+                db.session.commit()
+            db.session.delete(user)
+            db.session.commit()
+        else:
+            db.session.delete(user)
+            db.session.commit()
+        flash('User has been deleted!', category='success')
+        return redirect(url_for('admin.admin'))
+    elif current_user.id == id:
+        db.session.delete(current_user)
+        db.session.commit()
+        flash('User has been deleted!', category='success')
+        return redirect(url_for('auth.sign_up'))
+    else:
+        flash('You dont have permission to delete this user!', category='error')
+        
+    return redirect(url_for('admin.admin'))
        

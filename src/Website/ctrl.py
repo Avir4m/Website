@@ -112,43 +112,6 @@ def like_post(post_id):
         
     return jsonify({'likes': len(post.likes), 'liked': current_user.id in map(lambda x: x.author, post.likes)})
 
-# User
-
-@ctrl.route('/delete-user/<user_id>/', methods=['POST', 'GET'])
-@login_required
-def delete_user(user_id):
-    per = current_user.permissions # Permissions
-    if per >= 1:
-        user = User.query.filter_by(id=user_id).first()
-        posts = Post.query.filter_by(author=user.id).all()
-        comments = Comment.query.filter_by(author=user.id).all()
-        likes = Like.query.filter_by(author=user.id).all()
-        if posts or comments or likes:
-            for post in posts:
-                db.session.delete(post)
-                db.session.commit()
-            for comment in comments:
-                db.session.delete(comment)
-                db.session.commit()
-            for like in likes:
-                db.session.delete(like)
-                db.session.commit()
-            db.session.delete(user)
-            db.session.commit()
-        else:
-            db.session.delete(user)
-            db.session.commit()
-        flash('User has been deleted!', category='success')
-        return redirect(url_for('admin.admin'))
-    elif current_user.id == id:
-        db.session.delete(current_user)
-        db.session.commit()
-        flash('User has been deleted!', category='success')
-        return redirect(url_for('auth.sign_up'))
-    else:
-        flash('You dont have permission to delete this user!', category='error')
-        
-    return redirect(url_for('admin.admin'))
 
 # Comments
 
