@@ -1,0 +1,142 @@
+{% extends "base.html"%}
+{% block title %} {{post.title}} {% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-text" style="max-width:90%;">
+          <h4>{{  post.title  }}</h4>
+          <div class="text-muted">
+              Posted by <a style="text-decoration: none;" 
+                          href="{{ url_for('views.user', username=post.user.username) }}" class="text-muted" >
+                          @{{  post.user.username  }}</a>  • {{ post.date_created  }}
+                          {% if post.edited == True %}
+                          <small>• Edited</small>
+                          {% endif %}
+          </div>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn" data-toggle="dropdown">
+          <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
+        </button>
+        <div class="dropdown-menu">
+          {% if user.id == post.author %}
+          <a class="dropdown-item" href="{{ url_for('ctrl.edit_post', post_id=post.id) }}">
+            <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{{ url_for('ctrl.delete_post', post_id=post.id) }}">
+            <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+        <div class="card-text">{{  post.text  }}</div>
+        <br />
+        <p class="card-text">
+          <ul class="list-group list-group-horizontal">
+            <li class="list-group-item">
+              {% if post.comments|length > 0 %}
+              <img src="{{ url_for('static', filename='images/icons/comment_b.png') }}" width="15"> {{ post.comments|length }}
+            {% else %}
+              <img src="{{ url_for('static', filename='images/icons/comment.png') }}" width="15"> {{ post.comments|length }}
+            {% endif %}
+            </li>
+            {% if user.id in post.likes|map(attribute="author")|list %}
+            <li class="list-group-item">
+              <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
+              style="color: black; text-decoration: none;"> 
+              <img src="{{ url_for('static', filename='images/icons/heart_b.png') }}" width="15"> {{ post.likes|length }}
+              </a>
+            </li>
+            {% else %}
+            <li class="list-group-item">
+              <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
+              style="color: black; text-decoration: none;"> 
+              <img src="{{ url_for('static', filename='images/icons/heart.png') }}" width="15"> {{ post.likes|length }}
+              </a>
+            </li>
+            {% endif %}
+            {% if user.id in post.saves|map(attribute="author")|list %}
+            <li class="list-group-item">
+              <a href="{{ url_for('ctrl.save_post', post_id=post.id) }}">
+                <img src="{{ url_for('static', filename='images/icons/bookmark_b.png') }}" width="15">
+              </a>
+            </li>
+            {% else %}
+            <li class="list-group-item">
+              <a href="{{ url_for('ctrl.save_post', post_id=post.id) }}">
+                <img src="{{ url_for('static', filename='images/icons/bookmark.png') }}" width="15">
+              </a>
+            </li>
+            {% endif %}
+            <li class="list-group-item">
+              <img src="{{ url_for('static', filename='images/icons/paper-plane.png') }}" width="15">
+            </li>
+          </ul>
+        </p>
+        <form
+        class="input-group mb-3"
+        method="POST"
+        action="/create-comment/{{post.id}}">
+        <input
+          type="text"
+          id="text"
+          name="text"
+          class="form-control"
+          placeholder="Comment"/>
+        <button type="submit" class="btn btn-primary">Comment</button>
+        </form>
+    </div>
+  </div>
+<br/>
+<div class="justify-content-between align-items-center">
+    {% if post.comments|length > 1 %}
+        <h3 align="center">
+            Comments
+        </h3>
+    {% else %}
+        <h3 align="center" class="text-muted">
+            No Comments
+        </h3>
+    {% endif %}
+{% for comment in post.comments %}
+    <div class="card">
+        <div class="card-header">
+            <a 
+            href="/user/{{comment.user.username}}"
+            style="color: black; text-decoration: none;" >
+            {{ comment.user.username }}</a> • {{ comment.date_created }}
+            <small class="text-muted">
+                {% if comment.edited == True %}
+                • Edited
+                {% endif %}
+            </small>
+            <button type="button" class="btn" data-toggle="dropdown">
+                <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
+            </button>
+            <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('views.user', username=comment.user.username)}}">
+                <img src="{{ url_for('static', filename='images/icons/user.png') }}" width="15"> Go to Profile
+            </a>
+            {% if comment.author == user.id or user.id == post.author %}
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{{ url_for('ctrl.edit_comment', comment_id=comment.id )}}">
+                <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
+            </a>
+            <a class="dropdown-item" href="{{ url_for('ctrl.delete_comment', comment_id=comment.id )}}">
+                <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
+            </a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {{ comment.text }}
+        </div>
+    </div>
+</div>
+<br/>
+{% endfor %}
+{% endblock %}

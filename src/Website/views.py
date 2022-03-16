@@ -1,7 +1,8 @@
+from tkinter import E
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 
-from .models import User, Post, User, Comment, Like
+from .models import User, Post, User, Comment, Like, Saved
 from . import db
 
 views = Blueprint('views', __name__)
@@ -40,23 +41,28 @@ def dashboard(username):
                     pass
                 else:
                     flash('This username is already in use.', category='error')
-            if first_name == '':
-                flash('First Name must be provided.', category='error')
             if email == user.email and username == user.username and first_name == user.first_name and last_name == user.last_name and description == user.description:
                 flash('Can\'t update profile if nothing has been changed.', category='error')
             else:
-                user.email = email
-                user.username = username
-                user.first_name = first_name
-                user.last_name = last_name
-                user.description = description
-                db.session.commit()
-                flash('Profile has been updated.', category='success')
+                if first_name == '':
+                    flash('First Name must be provided.', category='error')
+                elif username == '':
+                    flash('Username must be provided.', category='error')
+                elif email == '':
+                    flash('Email must be provided.', category='error')
+                else:
+                    user.email = email
+                    user.username = username
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.description = description
+                    db.session.commit()
+                    flash('Profile has been updated.', category='success')
                 
         return render_template('dashboard.html', user=current_user)
     
     else:
-        return redirect('views.dashboard', username=current_user.username)
+        return redirect(url_for('views.dashboard'), username=current_user.username)
 
 @views.route('/user/<username>/')
 @login_required
@@ -69,3 +75,11 @@ def user(username):
 
     posts = Post.query.filter_by(author=user.id).all()
     return render_template("user.html", user=current_user, posts=posts, username=user)
+
+@views.route('/post/<url>')
+def post(url):
+    post = Post.query.filter_by(url=url).first()
+    if not post:
+        abort(404)
+    else:
+        return render_template('post.html', post=post, user=current_user)

@@ -29,7 +29,7 @@ def create_app():
     app.register_blueprint(errors, url_prefix='/')
     app.register_blueprint(admin_permissions, url_prefix='/')
     
-    from .models import User, Post, Comment, Like
+    from .models import User, Post, Comment, Like, Saved
     
     create_database(app)
     

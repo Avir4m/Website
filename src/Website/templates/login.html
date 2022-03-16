@@ -36,7 +36,7 @@
                         <label class="form-check-label" for="flexCheckChecked">Remember Me</label>
                     </div>
                     <br/>
-                    <small><p>Need an account? <a href="sign-up">Sign up</a></p></small>
+                    <small><p>Need an account? <a href="{{ url_for('auth.sign_up') }}">Sign up</a></p></small>
                     {% if darkmode == True %}
                     <button type="submit" class="btn btn-success">Login</button>
                     {% else %}

@@ -88,7 +88,7 @@ def sign_up():
         elif len(password1) < 7:
             flash('Password must be at least 6 characters.', category='error')
         else:
-            new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'), permissions=1, verified=False)
+            new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'), verified=False)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
@@ -161,7 +161,7 @@ def verify_email():
     link = url_for('auth.confirm_email', token=token, _external=True)
     msg = f'Email confirmation\n {link}'
     send_email(email, msg)
-    return redirect(url_for('views.dashboard'))
+    return redirect(url_for('views.dashboard', username=user.username))
 
 @auth.route('/confirm_email/<token>/')
 @login_required

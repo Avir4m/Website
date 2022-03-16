@@ -19,12 +19,12 @@
                             {% endif %}
             </div>
         </div>
+        {% if user.id == post.author %}
         <div class="btn-group">
           <button type="button" class="btn" data-toggle="dropdown">
             <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
           </button>
           <div class="dropdown-menu">
-            {% if user.id == post.author %}
             <a class="dropdown-item" href="{{ url_for('ctrl.edit_post', post_id=post.id) }}">
               <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
             </a>
@@ -32,9 +32,9 @@
             <a class="dropdown-item" href="{{ url_for('ctrl.delete_post', post_id=post.id) }}">
               <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
             </a>
-            {% endif %}
           </div>
         </div>
+        {% endif %}
       </div>
       <div class="card-body">
           <div class="card-text">{{  post.text  }}</div>
@@ -53,23 +53,43 @@
                 <img src="{{ url_for('static', filename='images/icons/comment.png') }}" width="15"> {{ post.comments|length }}
               {% endif %}
               </li>
-              {% if user.id in post.likes|map(attribute="author")|list %}
               <li class="list-group-item">
-                <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
-                style="color: black; text-decoration: none;"> 
-                <img src="{{ url_for('static', filename='images/icons/heart_b.png') }}" width="15"> {{ post.likes|length }}
-                </a>
+
+                {% if user.id in post.likes|map(attribute="author")|list %}
+
+                <img 
+                src="{{ url_for('static', filename='images/icons/heart_b.png') }}"
+                width="15"
+                id="like-button-{{post.id}}"
+                onclick="like({{post.id}})">
+
+                {% else %}
+
+                <img
+                src="{{ url_for('static', filename='images/icons/heart.png') }}" 
+                width="15"
+                id="like-button-{{post.id}}"
+                onclick="like({{post.id}})">
+
+                {% endif %}
+
+                <span id="likes-count-{{post.id}}">{{ post.likes|length }}</span>
+
               </li>
+              <li class="list-group-item">
+              {% if user.id in post.saves|map(attribute="author")|list %}
+                <img 
+                src="{{ url_for('static', filename='images/icons/bookmark_b.png') }}" 
+                width="15"
+                id="save-button-{{post.id}}"
+                onclick="save({{post.id}})">
               {% else %}
-              <li class="list-group-item">
-                <a href="{{ url_for('ctrl.like_post', post_id=post.id) }}" 
-                style="color: black; text-decoration: none;"> 
-                <img src="{{ url_for('static', filename='images/icons/heart.png') }}" width="15"> {{ post.likes|length }}
-                </a>
-              </li>
+                <img 
+                src="{{ url_for('static', filename='images/icons/bookmark.png') }}" 
+                width="15"
+                id="save-button-{{post.id}}"
+                onclick="save({{post.id}})">
               {% endif %}
-              <li class="list-group-item">
-                <img src="{{ url_for('static', filename='images/icons/bookmark.png') }}" width="15">
               </li>
               <li class="list-group-item">
                 <img src="{{ url_for('static', filename='images/icons/paper-plane.png') }}" width="15">
@@ -99,11 +119,13 @@
                           <a class="dropdown-item" href="{{ url_for('views.user', username=comment.user.username)}}">
                             <img src="{{ url_for('static', filename='images/icons/user.png') }}" width="15"> Go to Profile
                           </a>
-                          {% if comment.author == current_user.id or current_user.id == post.author %}
+                          {% if comment.author == user.id or user.id == post.author %}
                           <div class="dropdown-divider"></div>
+                          {% if comment.author == user.id %}
                           <a class="dropdown-item" href="{{ url_for('ctrl.edit_comment', comment_id=comment.id )}}">
                             <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
                           </a>
+                          {% endif %}
                           <a class="dropdown-item" href="{{ url_for('ctrl.delete_comment', comment_id=comment.id )}}">
                             <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
                           </a>

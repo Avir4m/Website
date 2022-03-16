@@ -1,11 +1,10 @@
 Website
 
-Version / 0.07 (Alpha)
+Version / 0.08 (Alpha)
 
 Changes:
 
-- Fixed bug when editing post/comment, which can make post/comment empty.
-- Added user description
-- Added icons to the website
-- Changed posts/comments look
-- Changed user page to look nicer
+- Fixed bug when updating username/email, which can make username/email null.
+- Added a way to save posts
+- Changed the way the like/save button works
+- Changed navbar look
