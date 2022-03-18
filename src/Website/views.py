@@ -1,4 +1,3 @@
-from tkinter import E
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 
@@ -76,10 +75,11 @@ def user(username):
     posts = Post.query.filter_by(author=user.id).all()
     return render_template("user.html", user=current_user, posts=posts, username=user)
 
-@views.route('/post/<url>')
-def post(url):
+@views.route('/post/<username>/<url>')
+def post(username, url):
     post = Post.query.filter_by(url=url).first()
+    posts = Post.query.filter_by(url=url).all()
     if not post:
         abort(404)
     else:
-        return render_template('post.html', post=post, user=current_user)
+        return render_template('post.html', post=post, user=current_user, posts=posts)

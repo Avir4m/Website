@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, abort
 from flask_login import login_required, current_user
 
 import uuid
@@ -111,6 +111,24 @@ def like_post(post_id):
         db.session.commit()
         
     return jsonify({'likes': len(post.likes), 'liked': current_user.id in map(lambda x: x.author, post.likes)})
+
+@ctrl.route('/post-status/<post_id>')
+@login_required
+def post_status(post_id):
+    post = Post.query.filter_by(id=post_id).first()
+    status = post.private
+    if not post:
+        flash('This post does not exist.', category='error')
+    elif post.author != current_user.id:
+        abort(403)
+    elif status:
+        post.private = False
+        db.session.commit()
+    else:
+        post.private = True
+        db.session.commit()
+        
+    return redirect(url_for('views.post', url=post.url))
 
 
 # Comments
