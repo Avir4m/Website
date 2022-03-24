@@ -1,0 +1,40 @@
+{% extends "base.html"%}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1 align="center">Posts</h1>
+<br/>
+<table class="table table-hover">
+	<thead>
+	  <tr>
+		<th scope="col">#</th>
+		<th scope="col">Author</th>
+		<th scope="col">Comments</th>
+		<th scope="col">Likes</th>
+		<th scope="col">Date created</th>
+		<th scope="col"></th>
+	  </tr>
+	</thead>
+	{% for post in posts %}
+	<tbody>
+		<tr>
+		<th scope="row">{{ post.id }}</th>
+		<td>
+			<a href="{{ url_for('views.user', username=user.username) }}" style=" color: black;">
+				{{ post.user.username }}
+			</a>
+		</td>
+		<td>{{ post.comments|length }}</td>
+		<td>{{ post.likes|length }}</td>
+		<td>{{ post.date_created }}</td>
+		<td>
+			<a href="{{ url_for('posts.delete_post', post_id=post.id) }}">
+				<img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15" >
+			</a>
+		</td>
+	  </tr>
+	</tbody>
+	  {% endfor %}
+</table>
+<br/>
+{% endblock %}

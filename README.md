@@ -1,13 +1,21 @@
-Website
+# Website
 
-Version / 0.08 (Alpha)
+### Version / 0.09 (Alpha)
 
-Changes:
+<br/>
 
-- Fixed bug when updating username/email, which can make username/email null.
-- Added a way to save posts.
-- Added a show password button to password fields.
-- You can now change post visibility (public/private).
-- Changed the way the like/save button works.
-- Changed navbar look.
-- Changed post route.
+ * **Changes / Fixes**:
+
+    * Fixed bug when deleting users that could cause problems in the database.
+    * Added more icons to the website.
+    * The Copy post link button now works.
+    * Changed admin dashboard.
+    * Changed posts and comments look.
+
+<br/>
+
+ * **Requirements**:
+ 
+   * flask
+   * flask_sqlalchemy
+   * flask_login

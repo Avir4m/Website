@@ -1,0 +1,25 @@
+{% extends "base.html"%}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Statistics
+    </div>
+    <div class="card-body">
+        <strong>Users:</strong>
+        {{ users|length }}<br/>
+
+        <strong>Posts:</strong>
+        {{ posts|length }}<br/>
+
+        <strong>Comments:</strong>
+        {{ comments|length }}<br/>
+
+    </div>
+    <div class="card-footer">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-primary btn-sm">Users</a>
+        <a href="{{ url_for('admin.posts') }}" class="btn btn-primary btn-sm">Posts</a>
+        <a href="{{ url_for('admin.comments') }}" class="btn btn-primary btn-sm">Comments</a>
+    </div>
+</div>
+{% endblock %}

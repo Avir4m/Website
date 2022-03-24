@@ -3,14 +3,12 @@ from flask_login import login_required, current_user
 
 import uuid
 
-from .models import User, Post, User, Comment, Like, Saved
+from .models import Post, Like, Saved
 from . import db
 
-ctrl = Blueprint('ctrl', __name__)
+posts = Blueprint('posts', __name__)
 
-# Posts
-
-@ctrl.route('/create-post', methods=['POST', 'GET'])
+@posts.route('/create-post', methods=['POST', 'GET'])
 @login_required
 def create_post():
     if request.method == 'POST':
@@ -40,7 +38,7 @@ def create_post():
     return render_template('create_post.html', user=current_user)
 
 
-@ctrl.route('/delete-post/<post_id>/')
+@posts.route('/delete-post/<post_id>/')
 @login_required
 def delete_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
@@ -65,7 +63,7 @@ def delete_post(post_id):
     return redirect(url_for('views.home'))
 
 
-@ctrl.route('/edit-post/<post_id>/', methods=['POST', 'GET'])
+@posts.route('/edit-post/<post_id>/', methods=['POST', 'GET'])
 @login_required
 def edit_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
@@ -95,7 +93,7 @@ def edit_post(post_id):
         return render_template('edit_post.html', user=current_user, post=post)
 
 
-@ctrl.route('/like-post/<post_id>/', methods=['POST'])
+@posts.route('/like-post/<post_id>/', methods=['POST'])
 @login_required
 def like_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
@@ -112,7 +110,7 @@ def like_post(post_id):
         
     return jsonify({'likes': len(post.likes), 'liked': current_user.id in map(lambda x: x.author, post.likes)})
 
-@ctrl.route('/post-status/<post_id>')
+@posts.route('/post-status/<post_id>')
 @login_required
 def post_status(post_id):
     post = Post.query.filter_by(id=post_id).first()
@@ -128,75 +126,9 @@ def post_status(post_id):
         post.private = True
         db.session.commit()
         
-    return redirect(url_for('views.post', url=post.url))
+    return redirect(url_for('views.post', url=post.url, username=post.user.username))
 
-
-# Comments
-
-@ctrl.route('/create-comment/<post_id>', methods=['POST', 'GET'])
-@login_required
-def create_comment(post_id):
-    text = request.form.get('text')
-
-    if not text:
-        flash('Comment cannot be empty.', category='error')
-    else:
-        post = Post.query.filter_by(id=post_id).first()
-        if post:
-            comment = Comment(text=text, author=current_user.id, post_id=post_id)
-            db.session.add(comment)
-            db.session.commit()
-            flash('Comment has been created.', category='success')
-        else:
-            flash('Post does not exist.', category='error')
-
-    return redirect(url_for('views.home'))
-
-@ctrl.route('/delete-comment/<comment_id>/')
-@login_required
-def delete_comment(comment_id):
-    comment = Comment.query.filter_by(id=comment_id).first()
-
-    if not comment:
-        flash('Comment does not exist.', category='error')
-    elif current_user.id != comment.author and current_user.id != comment.post.author:
-        flash('You do not have permission to delete this comment.', category='error')
-    else:
-        db.session.delete(comment)
-        db.session.commit()
-        flash('Comment has been deleted.', category='success')
-
-    return redirect(url_for('views.home'))
-
-    
-@ctrl.route('/edit-comment/<comment_id>/', methods=['POST', 'GET'])
-@login_required
-def edit_comment(comment_id):
-    comment = Comment.query.filter_by(id=comment_id).first()
-    if request.method == 'POST':
-        if not comment:
-            flash('This post does not exist.', category='error')
-        elif comment.author != current_user.id:
-            flash('You are not allowed to edit this post.', category='error')
-        else:
-            new_comment = request.form.get('newComment')
-            if new_comment == '':
-                flash('Comment cannot be empty.', category='error')
-            else:       
-                comment.text = new_comment
-                comment.edited = True
-                db.session.commit()
-                flash('Comment has been updated.', category='success')
-                return redirect(url_for('views.home'))
-                
-        return render_template('edit_comment.html', user=current_user, comment=comment)
-    else:
-        return render_template('edit_comment.html', user=current_user, comment=comment)
-    
-    
-# Saves
-
-@ctrl.route('/save-post/<post_id>/', methods=['POST'])
+@posts.route('/save-post/<post_id>/', methods=['POST'])
 @login_required
 def save_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
@@ -212,4 +144,3 @@ def save_post(post_id):
         db.session.commit()
         
     return jsonify({'saved': current_user.id in map(lambda x: x.author, post.saves)})
-        
