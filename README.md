@@ -9,7 +9,7 @@
     * Fixed bug when deleting users that could cause problems in the database.
     * Added more icons to the website.
     * The Copy post link button now works.
-    * Changed admin dashboard.
+    * Changed admin dashboard looks and route.
     * Changed posts and comments look.
 
 <br/>

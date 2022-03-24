@@ -48,3 +48,8 @@ function showPassword(number) {
     img.src = "/static/images/icons/eye-crossed.png";
   }
 }
+
+function copyPostLink(url, author) {
+  link = location.protocol + '//' + location.host + '/post/'+ author +'/'+ url;
+  navigator.clipboard.writeText(link);
+}

@@ -3,29 +3,16 @@ from flask_login import login_user, login_required, logout_user, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
-import smtplib
 
 from . import db
 from .models import User, Post, Comment, Like, Saved
+from .func import send_email, get_secret_key
 
 auth = Blueprint('auth', __name__)
 
-with open("files/SECRET_KEY.txt", "r") as f:
-    SECRET_KEY = f.read()
-    f.close()
+SECRET_KEY = get_secret_key()
 
 s = URLSafeTimedSerializer(SECRET_KEY)
-
-def send_email(email, msg):
-    with open('files/EMAIL.txt', 'r') as f:
-        email_sys, password = f.read().split('\n')
-        f.close()
-
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(email_sys, password)
-    server.sendmail(email_sys, email, msg)
-    server.quit()
 
 
 # Auth
@@ -89,16 +76,10 @@ def sign_up():
         elif len(password1) < 7:
             flash('Password must be at least 6 characters.', category='error')
         else:
-            new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'), verified=False)
+            new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
-            
-            #Send verifaction email
-            token = s.dumps(email, salt='email-confirm')
-            link = url_for('auth.confirm_email', token=token, _external=True)
-            msg = f'Email confirmation\n {link}'
-            send_email(email, msg)
             flash('Account created!', category='success')
             return redirect(url_for('views.home'))
         
@@ -222,38 +203,46 @@ def confirm_email(token):
 def delete_user(user_id):
     per = current_user.permissions # Permissions
     if per >= 1:
-        user = User.query.filter_by(id=user_id).first()
-        posts = Post.query.filter_by(author=user.id).all()
-        comments = Comment.query.filter_by(author=user.id).all()
-        likes = Like.query.filter_by(author=user.id).all()
-        saves = Saved.query.filter_by(author=user.id).all
-        if posts or comments or likes or saves:
-            for post in posts:
-                db.session.delete(post)
-                db.session.commit()
-            for comment in comments:
-                db.session.delete(comment)
-                db.session.commit()
-            for like in likes:
-                db.session.delete(like)
-                db.session.commit()
-            for save in saves:
-                db.session.delete(save)
-                db.session.commit()
-            db.session.delete(user)
-            db.session.commit()
-        else:
-            db.session.delete(user)
-            db.session.commit()
-        flash('User has been deleted!', category='success')
-        return redirect(url_for('admin.admin'))
-    elif current_user.id == id:
-        db.session.delete(current_user)
+        user =  User.query.filter_by(id=user_id).first()
+        Post.query.filter_by(author=user.id).delete()
+        Comment.query.filter_by(author=user.id).delete()
+        Like.query.filter_by(author=user.id).delete()
+        Saved.query.filter_by(author=user.id).delete()
+        db.session.delete(user)
         db.session.commit()
-        flash('User has been deleted!', category='success')
-        return redirect(url_for('auth.sign_up'))
+        flash(f'User {user.id} has been deleted!', category='success')
+        return redirect(url_for('admin.users'))
     else:
-        flash('You dont have permission to delete this user!', category='error')
-        
-    return redirect(url_for('admin.admin'))
-       
+        if int(user_id) == int(current_user.id):
+            user = current_user
+            email = user.email
+            token = s.dumps(email, salt='delete-user-confirm')
+            link = url_for('auth.confirm_user_delete', token=token, _external=True)
+            msg = f'Delete user confirmation\n {link}'
+            send_email(email, msg)
+            flash(f'We have sent you confirmation link to your email address.', category='success')
+            return redirect(url_for('views.dashboard', username=user.username))
+        else:
+            flash('You are not allowed to delete other users')
+            abort(403)
+            
+@auth.route('/confirm-user-delete/<token>/')
+@login_required
+def confirm_user_delete(token):
+    user = current_user
+    try:
+        email = s.loads(token, salt='delete-user-confirm', max_age=86400) # 86400 Seconds (24 Hours)
+        if email == user.email:
+            user = User.query.filter_by(id=user.id).first()
+            Post.query.filter_by(author=user.id).delete()
+            Comment.query.filter_by(author=user.id).delete()
+            Like.query.filter_by(author=user.id).delete()
+            Saved.query.filter_by(author=user.id).delete()
+            db.session.delete(user)
+            db.session.commit()
+            flash('Account has been deleted!', category='success')
+            return redirect(url_for('auth.sign_up'))
+        else:
+            flash('Invalid token', category='error')
+    except SignatureExpired:
+       abort(404)

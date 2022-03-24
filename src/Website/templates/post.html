@@ -3,6 +3,10 @@
 {% block header %}<h2 align="center">Post</h2>{% endblock %}
 {% block footer %}
 {% if post.comments|length > 0 %}
+<script>
+  commentButton = document.getElementById(`commentButton`);
+  commentButton.href = ''
+</script>
   {% if post.comments|length == 1 %}
     <h2 align="center"> {{post.comments|length}} Comment</h2>
   {% else %}

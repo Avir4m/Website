@@ -1,16 +1,48 @@
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
-from .models import User
+
+from .models import User, Post, Comment
 
 admin_permissions = Blueprint('admin', __name__)
 
-@admin_permissions.route('/admin', methods=['GET', 'POST'])
+@admin_permissions.route('/')
 @login_required
-def admin():
+def dashboard():
     per = current_user.permissions # Permissions
     if per >= 1:
         users = User.query.filter_by().all()
-        return render_template('admin.html', user=current_user, users=users)
+        posts = Post.query.filter_by().all()
+        comments = Comment.query.filter_by().all()
+        return render_template('admin/dashboard.html', user=current_user, users=users, posts=posts, comments=comments)
     else:
-        flash('Sorry you must be the Admin to access the Admin page...', 'error')
-        return redirect(url_for('views.dashboard'))
+        abort(403)
+
+@admin_permissions.route('/users/')
+@login_required
+def users():
+    per = current_user.permissions # Permissions
+    if per >= 1:
+        users = User.query.filter_by().all()
+        return render_template('admin/users.html', user=current_user, users=users)
+    else:
+        abort(403)
+        
+@admin_permissions.route('/posts/')
+@login_required
+def posts():
+    per = current_user.permissions # Permissions
+    if per >= 1:
+        posts = Post.query.filter_by().all()
+        return render_template('admin/posts.html', user=current_user, posts=posts)
+    else:
+        abort(403)
+
+@admin_permissions.route('/comments/')
+@login_required
+def comments():
+    per = current_user.permissions # Permissions
+    if per >= 1:
+        comments = Comment.query.filter_by().all()
+        return render_template('admin/comments.html', user=current_user, comments=comments)
+    else:
+        abort(403)

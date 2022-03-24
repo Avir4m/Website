@@ -36,7 +36,11 @@
 				{{ user.date_joined }}<br/>
 
 				<strong>Verified:</strong>
-				{{ user.verified }}<br/>
+				{% if user.verified %}
+				<img src="{{ url_for('static', filename='images/icons/check.png') }}" width="15" >
+				{% else %}
+				<img src="{{ url_for('static', filename='images/icons/cross.png') }}" width="15" >
+				{% endif %}<br/>
 
 				{% if user.permissions >= 1 %}
 				<strong>Permissions:</strong>

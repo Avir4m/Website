@@ -19,15 +19,17 @@ def create_app():
     
     from .views import views
     from .auth import auth
-    from .ctrl import ctrl
+    from .posts import posts
+    from .comments import comments
     from .errors import errors
     from .admin_permissions import admin_permissions
      
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(ctrl, url_prefix='/')
+    app.register_blueprint(posts, url_prefix='/')
+    app.register_blueprint(comments, url_prefix='/')
     app.register_blueprint(errors, url_prefix='/')
-    app.register_blueprint(admin_permissions, url_prefix='/')
+    app.register_blueprint(admin_permissions, url_prefix='/admin')
     
     from .models import User, Post, Comment, Like, Saved
     

@@ -75,7 +75,7 @@ def user(username):
     posts = Post.query.filter_by(author=user.id).all()
     return render_template("user.html", user=current_user, posts=posts, username=user)
 
-@views.route('/post/<username>/<url>')
+@views.route('/post/<username>/<url>/')
 def post(username, url):
     post = Post.query.filter_by(url=url).first()
     posts = Post.query.filter_by(url=url).all()
