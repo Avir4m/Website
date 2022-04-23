@@ -1,0 +1,54 @@
+{% extends "posts_div.html"%}
+{% block title %}{{ forum.name }}{% endblock %}
+{% block header %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-text" style="max-width: 95%;">
+            <h2>
+              {% if forum.picture %}
+              <img src="{{ url_for('static', filename='images/upload_folder/forums/' + forum.picture)}}" width="75" style="border-radius: 50%;">
+              {% endif %}
+                {{  forum.name  }}
+            </h2>
+            <div class="text-muted">
+                Created by 
+                <a 
+                style="text-decoration: none;"          
+                href="{{ url_for('views.user', username=forum.user.username) }}" 
+                class="text-muted">@{{ forum.user.username }}</a>
+                 • {{ forum.date_created  }}
+            </div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn" data-toggle="dropdown">
+            <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('reports.report_forum', url=forum.url) }}" style="color: red;">
+              <img src="{{ url_for('static', filename='images/icons/exclamation_r.png') }}" width="15"> Report
+            </a>
+            <div class="dropdown-divider"></div>
+            {% if user.id == forum.user.id %}
+            <a class="dropdown-item" href="{{ url_for('forums.delete_forum', forum_id=forum.id)}}">
+              <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
+            </a>
+            <a class="dropdown-item" href="{{ url_for('forums.edit_forum', forum_id=forum.id)}}">
+              <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit Forum
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    <div class="card-body">
+        <h5>
+            {{ forum.description }}
+        </h5>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+<div align="center">
+    <a href="{{ url_for('forums.create_forum') }}"><button type="submit" class="btn btn-lg btn-primary">Create Forum</button></a>
+</div>
+{% endblock %}

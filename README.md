@@ -1,18 +1,46 @@
 # Website
 
-### Version / 0.09 (Alpha)
+#### Version / 0.10 (Alpha)
 
 <br/>
 
  * **Changes / Fixes**:
 
-    * Fixed bug when deleting users that could cause problems in the database.
-    * Added more icons to the website.
-    * The Copy post link button now works.
-    * Changed admin dashboard looks and route.
-    * Changed posts and comments look.
+    * Hotfixes
+      * Cannot have spaces in username
+      * Fixed copy link on post
+      * Dashboard description default value
+    <br/>
 
-<br/>
+    * Added forums
+      * Forums routes
+      * A way to create / delete / edit Forums
+      * Make a post on a forum
+      * Admin dashboard table
+    <br/>
+
+    * Added report system
+      * You can report posts/forms
+      * Admin can see reports in the admin dashboard
+    <br/>
+
+    * Added darkmode (beta)
+      * Save preference in local storage
+      * Two different css files to change between
+    <br/>
+
+    * Pictues
+      * You can upload your own profile picture
+      * A way restore to the default profile picture
+      * Have a picture on your forum
+      * Upload a picture to your post
+    <br/>
+
+    * Created a trello board
+      * you can see what im working on / future plans
+      * [Click here](https://trello.com/b/6Xh0QihV)
+    <br/>
+
 
  * **Requirements**:
  

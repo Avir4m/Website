@@ -1,0 +1,81 @@
+body {
+    background-color: #404040;
+    color: #fff;
+}
+
+.card {
+    border: 1px solid #262626;
+    color: #fff;
+}
+
+
+.card-header {
+    background-color: #333333;
+    color: #fff;
+}
+
+.card-header a {
+    text-decoration: none;
+    color: #fff;
+}
+
+
+.card-body {
+    background-color: #404040;
+    color: #fff;
+}
+
+.card-footer {
+    background-color: #333333;
+}
+
+.form-control {
+    color: #fff;
+    background-color: #262626;
+    border: 1px solid #262626;
+}
+
+.input-group-text {
+    background-color: #262626;
+    border: 1px solid #262626;
+}
+
+input:-internal-autofill-selected {
+    appearance: menulist-button;
+    background-image: none !important;
+    background-color: -internal-light-dark(#262626, #262626) !important;
+    color: -internal-light-dark(black, #262626) !important;
+}
+
+.custom-select {
+    background: #262626;
+    border: 1px solid #262626;
+}
+
+.list-group-item {
+    background-color: #404040;
+    color: #000;
+}
+
+.dropdown-menu {
+    background-color: #404040;
+    border: 1px solid #262626;
+}
+
+.dropdown-menu a:hover {
+    color: #fff;
+    background-color: #262626;
+    text-decoration: none;
+}
+
+.dropdown-divider {
+    border: 1px solid #262626;
+}
+
+td {
+    color : #fff;
+}
+
+tr {
+    color : #fff;
+}
