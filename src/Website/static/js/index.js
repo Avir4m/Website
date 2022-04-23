@@ -49,7 +49,7 @@ function showPassword(number) {
   }
 }
 
-function copyPostLink(url, author) {
-  link = location.protocol + '//' + location.host + '/post/'+ author +'/'+ url;
+function copyPostLink(url) {
+  link = location.protocol + '//' + location.host + '/post/' + url;
   navigator.clipboard.writeText(link);
 }

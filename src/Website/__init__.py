@@ -3,12 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 
-db = SQLAlchemy()
-DB_NAME = "database.db"
 
+db = SQLAlchemy()
 with open("files/SECRET_KEY.txt", "r") as f:
     SECRET_KEY = f.read()
     f.close()
+
+DB_NAME = "database.db"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -21,17 +25,21 @@ def create_app():
     from .auth import auth
     from .posts import posts
     from .comments import comments
+    from .forums import forums
+    from .reports import reports
     from .errors import errors
-    from .admin_permissions import admin_permissions
+    from .admin import admin
      
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(posts, url_prefix='/')
     app.register_blueprint(comments, url_prefix='/')
+    app.register_blueprint(forums, url_prefix='/')
+    app.register_blueprint(reports, url_prefix='/')
     app.register_blueprint(errors, url_prefix='/')
-    app.register_blueprint(admin_permissions, url_prefix='/admin')
+    app.register_blueprint(admin, url_prefix='/admin')
     
-    from .models import User, Post, Comment, Like, Saved
+    from .models import User
     
     create_database(app)
     
@@ -46,8 +54,8 @@ def create_app():
     return app
 
 def create_database(app):
-    if path.exists('Src/Website/' + DB_NAME):
-        print(' * Loaded database')
-    else:
-        db.create_all(app=app)
+    if not path.exists('Src/Website/' + DB_NAME):
         print(' * Created database')
+        db.create_all(app=app)
+    else:
+        print(' * Loaded database')

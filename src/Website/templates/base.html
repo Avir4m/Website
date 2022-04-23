@@ -3,6 +3,8 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		
 		<link
 		  rel="stylesheet"
 		  href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -14,11 +16,17 @@
 		  href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 		  crossorigin="anonymous"
 		/>
-
+		
 		<link
 		rel="stylesheet"
-		href="{{ url_for('static', filename='css/style.css') }}"
+		href="{{ url_for('static', filename='css/main.css') }}"
 	  />
+		<link
+		rel="stylesheet"
+		href="{{ url_for('static', filename='css/lightmode.css') }}"
+		id="darkModeCss"
+		/>
+
 	  	<link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}"/>
 		  
 		<title>Testing - {% block title %}Home{% endblock %}</title>
@@ -39,32 +47,36 @@
 			</button>
 			<div class="collapse navbar-collapse justify-content-end" id="navbar">
 			  <div class="navbar-nav">
-				{% if user.is_authenticated %}
-				<ul class="nav">
-					<li class="nav-item">
-						<a class="nav-item nav-link" id="home" href="{{ url_for('views.home') }}">
-							<img src="{{ url_for('static', filename='images/icons/home.png') }}" width="20">
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-item nav-link" id="user" href="{{ url_for('views.user', username=user.username) }}">
-							<img src="{{ url_for('static', filename='images/icons/user.png') }}" width="20">
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-item nav-link" id="logout" href="{{ url_for('auth.logout') }}">
-							<img src="{{ url_for('static', filename='images/icons/sign-out.png') }}" width="20">
-						</a>
-					</li>
-					{% else %}
-					<li class="nav-item">
-						<a class="nav-item nav-link" id="login" href="{{ url_for('auth.login') }}">Login</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-item nav-link" id="signUp" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
-					</li>
-				</ul>
-				{% endif %}
+						<li class="nav-item">
+							<a class="nav-item nav-link">
+								<img src="{{ url_for('static', filename='images/icons/moon.png')}}" width="20" id="dark-mode-toggle">
+							</a>
+						</li>
+						{% if user.is_authenticated %}
+						<li class="nav-item">
+							<a class="nav-item nav-link" id="home" href="{{ url_for('views.home') }}">
+								<img src="{{ url_for('static', filename='images/icons/home.png') }}" width="20">
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-item nav-link" id="user" href="{{ url_for('views.user', username=user.username) }}">
+								<img src="{{ url_for('static', filename='images/icons/user.png') }}" width="20">
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-item nav-link" id="logout" href="{{ url_for('auth.logout') }}">
+								<img src="{{ url_for('static', filename='images/icons/sign-out.png') }}" width="20">
+							</a>
+						</li>
+						{% else %}
+						<li class="nav-item">
+							<a class="nav-item nav-link" id="login" href="{{ url_for('auth.login') }}">Login</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-item nav-link" id="signUp" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
+						</li>
+						{% endif %}
+					</ul>
 				</div>
 			</div>
 		</nav>
@@ -114,10 +126,16 @@
 			integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
 			crossorigin="anonymous"
 		></script>
-	  
+		
 		<script
 			type="text/javascript"
 			src="{{ url_for('static', filename='js/index.js') }}"
 		></script>
+
+		<script
+		type="text/javascript"
+		src="{{ url_for('static', filename='js/darkmode.js') }}"
+	></script>
+
 	</body>
 </html>

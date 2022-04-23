@@ -34,7 +34,7 @@ def login():
                 login_user(user, remember=remember)
                 return redirect(url_for('views.home'))
             else:
-                flash('Invalid password, Please try again.', category='error')
+                flash('Invalid password or email address, Please try again.', category='error')
         else:
             flash('Email does not exist.', category='error')
         
@@ -75,6 +75,8 @@ def sign_up():
             flash('Passwords don\'t match.', category='error')
         elif len(password1) < 7:
             flash('Password must be at least 6 characters.', category='error')
+        elif ' ' in username:
+            flash('You cannot have spaces in username.', category='error')
         else:
             new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
@@ -95,7 +97,6 @@ def change_password():
         email = current_user.email
         
         user = User.query.filter_by(email=email).first()
-
         
         password = request.form.get('password')
         password1 = request.form.get('password1')
@@ -129,8 +130,9 @@ def forgot_password():
         if user:
             token = s.dumps(email, salt='reset-password')
             link = url_for('auth.reset_password', token=token, _external=True)
-            msg = f'Email confirmation\n {link}'
-            send_email(email, msg)
+            msg = f'Email confirmation:\n {link}'
+            sub = 'Email confirmation'
+            send_email(email, msg, sub)
             flash('Sent a verification link to your email address', category='success')
         else:
             flash('This email is not connected to any account, please try different email addresses.', category='error')
@@ -177,7 +179,8 @@ def verify_email():
     token = s.dumps(email, salt='email-confirm')
     link = url_for('auth.confirm_email', token=token, _external=True)
     msg = f'Email confirmation\n {link}'
-    send_email(email, msg)
+    sub = 'Email confirmation'
+    send_email(email, msg, sub)
     return redirect(url_for('views.dashboard', username=user.username))
 
 @auth.route('/confirm_email/<token>/')
@@ -219,7 +222,8 @@ def delete_user(user_id):
             token = s.dumps(email, salt='delete-user-confirm')
             link = url_for('auth.confirm_user_delete', token=token, _external=True)
             msg = f'Delete user confirmation\n {link}'
-            send_email(email, msg)
+            sub = 'Delete User Confirmation'
+            send_email(email, msg, sub)
             flash(f'We have sent you confirmation link to your email address.', category='success')
             return redirect(url_for('views.dashboard', username=user.username))
         else:

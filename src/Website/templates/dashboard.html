@@ -9,9 +9,7 @@
   <div class="card-header">
     Account Details
   </div>
-  <div class="card-body bg-light">
-   
-    <p class="card-text">
+	<div class="card-body">
 
 		<div class="container">
 			<div class="row">
@@ -50,15 +48,14 @@
 			</div>
 
 			<div class="col-4">
+				<a href="{{ url_for('views.remove_profile_picture', username=user.username) }}" class="removePicture">Remove Picture</a>
 				<img 
 				align="right" 
-				src="{{ url_for('static', filename='images/default_profile_pic.jpg') }}" 
-				class="img-fluid" 
-				alt="Responsive image" 
-				width="60%" 
-				style="border-radius: 5%;"> 
+				src="{{ url_for('static', filename='images/upload_folder/users/' + user.picture) }}" 
+				class="img-fluid"
+				alt="Profile Picture"
+				style="border-radius : 50%; width: 60%; aspect-ratio: 1 / 1; object-fit: cover;">
 			</div>
-
 			</div>
 		</div>
     </p>
@@ -73,7 +70,7 @@
 
     <a href="{{ url_for('auth.delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm">Delete</a>
 
-  </div>
+	</div>
 </div>
 
 <br/>
@@ -82,7 +79,7 @@
 	<div class="card-header">
 	  Update Profile
 	</div>
-	<div class="card-body bg-light">
+	<div class="card-body">
 	<form method="POST" enctype="multipart/form-data">
 		<div class="form-group">
 			<label for="firstName">First Name</label>
@@ -116,13 +113,12 @@
 		</div>
 		<div class="form-group">
 			<label for="description">Description</label>
-			<textarea  
+			<textarea
 			type="text"  
 			class="form-control" 
 			id="description" 
 			name="description"  
-			placeholder="Description"
-			value="{{ user.description }}"></textarea>
+			placeholder="Description">{{ user.description }}</textarea>
 		</div>
 		<div class="form-group">
 			<label for="email">Email Address</label>
@@ -134,10 +130,29 @@
 			placeholder="Email Address"
 			value="{{ user.email }}"/>
 		</div>
+		<div class="form-group">
+			<label for="file">Upload Profile Picture</label>
+			<input 
+			type="file" 
+			class="form-control-file" 
+			id="profilePicture"
+			name="file"
+			accept="image/*"/><br/>
+			<img id="preview" src="{{ url_for('static', filename='images/upload_folder/users/' + user.picture )}}" 
+			style="width: 300px; height: 300px; object-fit: cover;"
+			/>
+		  </div>
 		<button type="submit" class="btn btn-primary btn-sm">Update Profile</button>
 	</form>
 	</div>
 </div>
-
+<script>
+    profilePicture.onchange = evt => {
+        const [file] = profilePicture.files
+        if (file) {
+            preview.src = URL.createObjectURL(file)
+        }
+      }
+</script>
 <br/>
 {% endblock %}

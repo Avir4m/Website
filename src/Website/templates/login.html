@@ -2,7 +2,7 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -18,7 +18,6 @@
                             class="form-control" 
                             id="email" 
                             name="email" 
-                            required
                             placeholder="Enter your email address"/>
                         </div>
                     </div>
@@ -30,7 +29,6 @@
                             class="form-control" 
                             id="password" 
                             name="password" 
-                            required
                             placeholder="Enter password"/>
                             <span class="input-group-text" id="basic-addon2" onclick="showPassword(0)">
                                 <img src="{{ url_for('static', filename='images/icons/eye-crossed.png') }}" width="15" id="icon-eye">

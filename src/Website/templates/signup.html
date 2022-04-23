@@ -2,7 +2,7 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     <div class="card">
         <div class="card-header">
             <h3 align="center">Sign up</h3>
@@ -85,7 +85,7 @@
                     </span>
                 </div>
             </div>
-            <small><p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p></small>
+            <small><p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p></small>
             <button type="submit" class="btn btn-primary">Sign up</button>
           </div>
     </div>
