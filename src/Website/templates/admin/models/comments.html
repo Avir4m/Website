@@ -11,6 +11,7 @@
 		<th scope="col">Author</th>
 		<th scope="col">Post URL</th>
 		<th scope="col">Post ID</th>
+		<th scope="col">Reports</th>
 		<th scope="col">Date created</th>
 		<th scope="col"></th>
 	  </tr>
@@ -20,7 +21,7 @@
 		<tr>
 		<th scope="row">{{ comment.id }}</th>
 		<td>
-			<a href="{{ url_for('views.user', username=user.username) }}">
+			<a href="{{ url_for('users.user', username=user.username) }}">
 				{{ comment.user.username }}
 			</a>
 		</td>
@@ -30,6 +31,7 @@
 				{{ comment.post.id }}
 			</a>
 		</td>
+		<td>{{ comment.reports|length }}</td>
 		<td>{{ comment.date_created }}</td>
 		<td>
 			<a href="{{ url_for('comments.delete_comment', comment_id=comment.id) }}">

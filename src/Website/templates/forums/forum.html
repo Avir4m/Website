@@ -6,17 +6,30 @@
         <div class="card-text" style="max-width: 95%;">
             <h2>
               {% if forum.picture %}
-              <img src="{{ url_for('static', filename='images/upload_folder/forums/' + forum.picture)}}" width="75" style="border-radius: 50%;">
+              <img 
+              src="{{ url_for('static', filename='images/upload_folder/forums/' + forum.picture)}}" 
+              width="75" 
+              style="border-radius : 50%; width: 75px; height: 75px; object-fit: cover;">
               {% endif %}
                 {{  forum.name  }}
+                {% if user.id in forum.members|map(attribute="user")|list %}
+                <button type="submit" class="btn btn-primary" onclick="joinForum({{ forum.id }})" id="join-button">Joined</button>
+                {% else %}
+                <button type="submit" class="btn btn-primary" onclick="joinForum({{ forum.id }})" id="join-button">Join</button>
+                {% endif %}
             </h2>
             <div class="text-muted">
-                Created by 
+              <p style="text-align: justify; text-align-last: justify;">
+                Created by
                 <a 
-                style="text-decoration: none;"          
-                href="{{ url_for('views.user', username=forum.user.username) }}" 
-                class="text-muted">@{{ forum.user.username }}</a>
-                 • {{ forum.date_created  }}
+                style="text-decoration: none;" href="{{ url_for('users.user', username=forum.user.username) }}" class="text-muted">@{{ forum.user.username }}</a>
+                 • <span id="member-count">{{ forum.members|length }}</span>
+                 {% if forum.members|length <= 1 %}
+                  member
+                 {% else %}
+                  members
+                 {% endif %}
+                </p>
             </div>
         </div>
         <div class="btn-group">
@@ -48,7 +61,4 @@
 </div>
 {% endblock %}
 {% block footer %}
-<div align="center">
-    <a href="{{ url_for('forums.create_forum') }}"><button type="submit" class="btn btn-lg btn-primary">Create Forum</button></a>
-</div>
 {% endblock %}

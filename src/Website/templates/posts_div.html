@@ -20,21 +20,21 @@
                 <img src="{{ url_for('static', filename='images/icons/lock.png') }}" width="15">
                 {% endif %}
               </h4>
-              <div class="text-muted">
+              <div class="header-sub">
                   <a 
                   style="text-decoration: none;"          
-                  href="{{ url_for('views.user', username=post.user.username) }}" 
-                  class="text-muted">
+                  href="{{ url_for('users.user', username=post.user.username) }}" 
+                  class="header-sub">
                   <img src="{{ url_for('static', filename='images/upload_folder/users/' + post.user.picture)}}"
-                  style="border-radius : 50%; width: 30px; height: 30px; object-fit: cover;">
+                  style="border-radius : 50%; width: 30px; height: 30px; object-fit: cover; margin-right: 5px;">
                   {{  post.user.username  }}
                   </a>
                   {% if post.forum_id != None %}
-                  At
+                  •
                   <a 
                   style="text-decoration: none;"          
                   href="{{ url_for('views.forum', url=post.forum.url) }}" 
-                  class="text-muted">{{ post.forum.name }}</a>
+                  class="header-sub">{{ post.forum.name }}</a>
                   {% endif %}
                    • {{ post.date_created  }}
                   {% if post.edited == True %}
@@ -42,40 +42,55 @@
                   {% endif %}
               </div>
           </div>
-          <div class="btn-group">
-            <button type="button" class="btn" data-toggle="dropdown">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
             </button>
-            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
-              <a class="dropdown-item" href="{{ url_for('reports.report_post', url=post.url) }}" style="color: red;">
-                <img src="{{ url_for('static', filename='images/icons/exclamation_r.png') }}" width="15"> Report
-              </a>
-              {% if user.id == post.author %}
-              <a class="dropdown-item" href="{{ url_for('posts.edit_post', post_id=post.id) }}">
-                <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
-              </a>
-              <a class="dropdown-item" href="{{ url_for('posts.delete_post', post_id=post.id) }}">
-                <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
-              </a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
+              <li>
+                <a class="dropdown-item" href="{{ url_for('users.user', username=post.user.username)}}">
+                  <img src="{{ url_for('static', filename='images/icons/user.png') }}" width="15"> Go to Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('reports.report_post', url=post.url) }}" style="color: red;">
+                  <img src="{{ url_for('static', filename='images/icons/exclamation_r.png') }}" width="15"> Report
+                </a>
+              </li>
               <div class="dropdown-divider"></div>
+              {% if user.id == post.author %}
+              <li>
+                <a class="dropdown-item" href="{{ url_for('posts.edit_post', post_id=post.id) }}">
+                  <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('posts.delete_post', post_id=post.id) }}">
+                  <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
+                </a>
+              </li>
               {% if post.private == false %}
+              <li>
                 <a class="dropdown-item" href="{{ url_for('posts.post_status', post_id=post.id) }}">
                   <img src="{{ url_for('static', filename='images/icons/lock.png') }}" width="15"> Make private
                 </a>
+              </li>
               {% else %}
+              <li>
                 <a class="dropdown-item" href="{{ url_for('posts.post_status', post_id=post.id) }}">
                   <img src="{{ url_for('static', filename='images/icons/globe.png') }}" width="15"> Make public
                 </a>
+              </li>
               {% endif %}
               {% endif %}
-            </div>
+            </ul>
           </div>
         </div>
         <div class="card-body">
             <div class="card-text">{{  post.text  }}</div>
             <br/>
             {% if post.picture != None %}
-            <img src="{{ url_for('static', filename='images/upload_folder/posts/' + post.picture)}}" width="60%">
+            <img src="{{ url_for('static', filename='images/upload_folder/posts/' + post.picture)}}" class="post-picture">
             {% endif %}
             <p class="card-text">
               <ul class="list-group list-group-horizontal">
@@ -83,8 +98,7 @@
                   {% if post.comments|length > 0 %}
                   <a 
                   id="commentButton"
-                  data-toggle="collapse"
-                  href="#comments-{{post.id}}" 
+                  onclick="toggleComments({{post.id}})"
                   role="button"
                   style="color: black; text-decoration: none;" >
                   <img src="{{ url_for('static', filename='images/icons/comment_b.png') }}" width="15"> {{ post.comments|length }}
@@ -133,10 +147,10 @@
                 </li>
                 <li class="list-group-item">
                   <div class="dropdown">
-                    <a href="#" id="imageDropdown" data-toggle="dropdown">
+                    <a class="dropdown-toggle" href="#" id="DarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       <img src="{{ url_for('static', filename='images/icons/paper-plane.png') }}" width="15">
                     </a>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="imageDropdown">
+                    <ul class="dropdown-menu dropdown-menu-dark" role="menu" aria-labelledby="imageDropdown">
                       <li 
                       align="center"
                       id="copyPostLink"
@@ -163,7 +177,7 @@
             placeholder="Comment"/>
           <button type="submit" class="btn btn-primary">Comment</button>
           </form>
-          <div class="collapse" id="comments-{{post.id}}">
+          <div class="comments" id="comments-{{post.id}}" style="display: none">
               <div id="comment-expanded-{{post.id}}">
                 {% for comment in post.comments %}
                   <div class="justify-content-between align-items-center">
@@ -175,30 +189,43 @@
                         <img src="{{ url_for('static', filename='images/upload_folder/users/' + comment.user.picture )}}"
                         style="border-radius : 50%; width: 30px; height: 30px; object-fit: cover;">
                           {{ comment.user.username }}</a> • {{ comment.date_created }}
-                          <small class="text-muted">
-                            {% if comment.edited == True %}
-                            • Edited
-                            {% endif %}
-                          </small>
-                          <button type="button" class="btn" data-toggle="dropdown">
-                            <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
-                        </button>
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ url_for('views.user', username=comment.user.username)}}">
-                            <img src="{{ url_for('static', filename='images/icons/user.png') }}" width="15"> Go to Profile
-                          </a>
-                          {% if comment.author == user.id or user.id == post.author %}
-                          <div class="dropdown-divider"></div>
-                          {% if comment.author == user.id %}
-                          <a class="dropdown-item" href="{{ url_for('comments.edit_comment', comment_id=comment.id )}}">
-                            <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
-                          </a>
+                        <small class="text-muted">
+                          {% if comment.edited == True %}
+                          • Edited
                           {% endif %}
-                          <a class="dropdown-item" href="{{ url_for('comments.delete_comment', comment_id=comment.id )}}">
-                            <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
-                          </a>
+                        </small>
+                        <div class="dropdown comment-dropdown">
+                          <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='images/icons/menu-dots-vertical.png') }}" width="15">
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li>
+                              <a class="dropdown-item" href="{{ url_for('users.user', username=comment.user.username)}}">
+                                <img src="{{ url_for('static', filename='images/icons/user.png') }}" width="15"> Go to Profile
+                              </a>
+                            </li>
+                            <li>
+                              <a class="dropdown-item" href="{{ url_for('reports.report_comment', id=comment.id)}}" style="color: red;">
+                                <img src="{{ url_for('static', filename='images/icons/exclamation_r.png') }}" width="15"> Report
+                              </a>
+                            </li>
+                            {% if comment.author == user.id or user.id == post.author %}
+                            <div class="dropdown-divider"></div>
+                            {% if comment.author == user.id %}
+                            <li>
+                              <a class="dropdown-item" href="{{ url_for('comments.edit_comment', comment_id=comment.id )}}">
+                                <img src="{{ url_for('static', filename='images/icons/pencil.png') }}" width="15"> Edit
+                              </a>
+                            </li>
+                          {% endif %}
+                            <li>
+                              <a class="dropdown-item" href="{{ url_for('comments.delete_comment', comment_id=comment.id )}}">
+                                <img src="{{ url_for('static', filename='images/icons/trash.png') }}" width="15"> Delete
+                              </a>
+                            </li>
+                          {% endif %}
+                          </ul>
                         </div>
-                        {% endif %}
                       </div>
                       <div class="card-body">
                         {{ comment.text }}

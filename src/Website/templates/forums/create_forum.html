@@ -8,7 +8,7 @@
             <h3 align="center">Create a new forum</h3>
         </div>
         <div class="card-body">
-            <div class="forum-group">
+            <div class="mb-3">
                 <label for="forumName">Forum Name</label>
                 <input 
                 type="forumName" 
@@ -18,7 +18,7 @@
                 placeholder="Forum Name"
                 maxlength="29"/>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="forumDescription">Forum Description</label>
                 <textarea 
                 type="text" 
@@ -27,32 +27,34 @@
                 name="forumDescription" 
                 placeholder="Forum Description"></textarea>
             </div>
-            <div class="form-group">
-                <label for="file">Upload Picture For Your Forum</label>
+            <div class="mb-3">
+                <label for="file">Upload a picture for your forum</label>
                 <input 
                 type="file" 
-                class="form-control-file" 
+                class="form-control" 
                 id="forumPicture"
                 name="file"
                 accept="image/*"/><br/>
-                <img id="preview" src="#" width="300"/>
+                <img id="preview" src="#" class="preview"/>
               </div>
         </div>
-    </div>
-    <br/>
-    <div align="center">
-        <button type="submit" class="btn btn-primary">Create Forum</button>
+        <div class="card-footer">
+            <div align="center">
+                <button type="submit" class="btn btn-primary">Create Forum</button>
+            </div>
+        </div>
     </div>
 </form>
 <br/>
-<div align="center">
-    <a href="{{ url_for('views.home') }}"><button type="submit" class="btn btn-secondary">Back</button></a>
-</div>
 <script>
+    preview.style.display = 'none';
     forumPicture.onchange = evt => {
         const [file] = forumPicture.files
         if (file) {
             preview.src = URL.createObjectURL(file)
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
         }
       }
 </script>

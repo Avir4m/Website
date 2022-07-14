@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, abort
+from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 
 from .models import User, Post, Comment, Like, Saved, Forum, Report
+
 
 admin = Blueprint('admin', __name__)
 
@@ -18,12 +19,13 @@ def dashboard():
         forums = Forum.query.filter_by().all()
         reports = Report.query.filter_by().all()
         
-        post_reports = Report.query.filter_by(forum_id=None).all()
-        forums_reports = Report.query.filter_by(post_id=None).all()
+        post_reports = Report.query.filter(Report.post_id.isnot(None)).all()
+        forum_reports = Report.query.filter(Report.forum_id.isnot(None)).all()
+        comment_reports = Report.query.filter(Report.comment_id.isnot(None)).all()
         
         return render_template('admin/dashboard.html', user=current_user,
                                users=users, posts=posts, comments=comments, likes=likes, saves=saves, forums=forums, # Models
-                               reports=reports,forums_reports=forums_reports, post_reports=post_reports) # Reports
+                               reports=reports,forums_reports=forum_reports, post_reports=post_reports, comment_reports=comment_reports) # Reports
     else:
         abort(403)
 
@@ -53,7 +55,7 @@ def forums():
     per = current_user.permissions # Permissions
     if per >= 1:
         forumss = Forum.query.filter_by().all()
-        return render_template('admin/models/forumss.html', user=current_user, forumss=forumss)
+        return render_template('admin/models/forums.html', user=current_user, forumss=forumss)
     else:
         abort(403)
 
@@ -102,7 +104,7 @@ def reports():
 def reports_posts():
     per = current_user.permissions # Permissions
     if per >= 1:
-        reports = Report.query.filter_by(forums_id=None).all()
+        reports = Report.query.filter(Report.post_id.isnot(None)).all()
         return render_template('admin/reports/posts.html', user=current_user, reports=reports)
     else:
         abort(403)
@@ -112,7 +114,17 @@ def reports_posts():
 def reports_forums():
     per = current_user.permissions # Permissions
     if per >= 1:
-        reports = Report.query.filter_by(post_id=None).all()
-        return render_template('admin/reports/forumss.html', user=current_user, reports=reports)
+        reports = Report.query.filter(Report.forum_id.isnot(None)).all()
+        return render_template('admin/reports/forums.html', user=current_user, reports=reports)
+    else:
+        abort(403)
+        
+@admin.route('/reports/comments/')
+@login_required
+def reports_comments():
+    per = current_user.permissions # Permissions
+    if per >= 1:
+        reports = Report.query.filter(Report.comment_id.isnot(None)).all()
+        return render_template('admin/reports/comments.html', user=current_user, reports=reports)
     else:
         abort(403)

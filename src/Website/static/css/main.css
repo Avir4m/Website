@@ -1,4 +1,50 @@
 .removePicture {
-    text-decoration: none;
     color: #dc3545;
+}
+
+.required-field {
+    color: #dc3545;
+}
+
+.card textarea {
+    max-height: 250px;
+}
+
+.preview {
+    margin-left: 25%;
+    width: 50%;
+    border-radius: 5px;
+}
+
+.card-header a {
+    text-decoration: none;
+}
+
+.dropdown-toggle::after {
+    content: none;
+}
+
+.header-sub {
+    margin: 5px;
+}
+
+.card-header a:hover {
+    color: #0d6efd;
+}
+
+.card-header h4 a{
+    color: #fff;
+}
+
+.comment-dropdown {
+    float: right;
+}
+
+.post-picture {
+    max-width: 50%;
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    color: #fff;
 }

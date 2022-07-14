@@ -30,16 +30,16 @@ def create_post():
             flash('Post title is too long.', category='error')
         elif not text:
             flash('Post text cannot be empty', category='error')
-        elif not forum and forumName != '':
+        elif not forum and forumName != None:
             flash('Forum does not exist.', category='error')
         else:
-            if forumName == '':
+            if forumName == None:
                 forum_id=None
             else:
                 forum_id = forum.id
             if file and allowed_file(file.filename):
                 filename, ext = secure_filename(file.filename).split('.')
-                filename = unique_filename(filename, Forum) + '.' + ext
+                filename = unique_filename(filename, Post) + '.' + ext
                 file.save(os.path.join(os.getcwd(), 'src/website/static/images/upload_folder/posts/', filename))
             else:
                 filename = None
@@ -50,7 +50,7 @@ def create_post():
             flash('Post created!', category='success')
             return redirect(url_for('views.home'))
             
-    return render_template('create_post.html', user=current_user, forums=forums)
+    return render_template('posts/create_post.html', user=current_user, forums=forums)
 
 
 @posts.route('/delete-post/<post_id>/')
@@ -114,9 +114,7 @@ def edit_post(post_id):
                 flash('Post has been updated.', category='success')
                 return redirect(url_for('views.home'))
             
-            return render_template('edit_post.html', user=current_user, post=post)
-    else:
-        return render_template('edit_post.html', user=current_user, post=post)
+    return render_template('posts/edit_post.html', user=current_user, post=post)
 
 
 @posts.route('/like-post/<post_id>/', methods=['POST'])

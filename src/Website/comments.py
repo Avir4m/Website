@@ -37,6 +37,11 @@ def delete_comment(comment_id):
     elif current_user.id != comment.author and current_user.id != comment.post.author:
         flash('You do not have permission to delete this comment.', category='error')
     else:
+        if comment.reports:
+            for report in comment.reports:
+                db.session.delete(report)
+                db.session.commit()
+                
         db.session.delete(comment)
         db.session.commit()
         flash('Comment has been deleted.', category='success')
@@ -64,6 +69,5 @@ def edit_comment(comment_id):
                 flash('Comment has been updated.', category='success')
                 return redirect(url_for('views.home'))
                 
-        return render_template('edit_comment.html', user=current_user, comment=comment)
-    else:
-        return render_template('edit_comment.html', user=current_user, comment=comment)
+    
+    return render_template('comments/edit_comment.html', user=current_user, comment=comment)

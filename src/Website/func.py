@@ -1,25 +1,41 @@
 import smtplib
 import uuid
+from email.message import EmailMessage
 
-from .models import Post, Forum, User
 from . import ALLOWED_EXTENSIONS
 
-def send_email(email_recipient, text, sub):
+def send_email(email_recipient, title, text):
     with open('files/EMAIL.txt', 'r') as f:
         EMAIL_SENDER, PASSWORD = f.read().split('\n')
         f.close()
-
-    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
-        smtp.ehlo()
-        smtp.starttls()
-        smtp.ehlo()
-        smtp.login(EMAIL_SENDER, PASSWORD)
-        subject = sub
-        body = text
-        msg = f'Subject:{subject}\n\n{body}'
-        smtp.sendmail(EMAIL_SENDER, email_recipient, msg)
        
-
+        msg = EmailMessage()
+        msg['Subject'] = title
+        msg['From'] = EMAIL_SENDER
+        msg['To'] = email_recipient
+        
+        msg.set_content(title)
+        
+        msg.add_alternative(f"""\
+        <!DOCTYPE html>
+        <html>
+            <body>
+                <h1 align="center">{title}</h1>
+                <p align="center">{text}</p>
+            </body>
+        </html>
+        """, subtype='html')
+        
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.ehlo()
+            smtp.login(EMAIL_SENDER, PASSWORD)
+            smtp.send_message(msg)
+            smtp.close()
+        
+        f.close()
+    
+    
+    
 def get_secret_key():
     with open("files/SECRET_KEY.txt", "r") as f:
         SECRET_KEY = f.read()

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
 
-from .models import Forum
+from .models import Forum, ForumMember
 from .func import create_url, allowed_file, unique_filename
 from . import db
 
@@ -35,10 +35,16 @@ def create_forum():
                 forum = Forum(name=name, description=description, creator=current_user.id, url=create_url(Forum))
             db.session.add(forum)
             db.session.commit()
+            
+            db.session.refresh(forum)
+            forumMember = ForumMember(user_id=current_user.id, forum_id=forum.id)
+            db.session.add(forumMember)
+            db.session.commit()
+            
             flash('forum created successfully!', category='success')
             return redirect(url_for('views.home'))
         
-    return render_template('create_forum.html', user=current_user)
+    return render_template('forums/create_forum.html', user=current_user)
     
 @forums.route('/delete-forum/<forum_id>')
 @login_required
@@ -50,6 +56,15 @@ def delete_forum(forum_id):
     elif current_user.id != forum.creator and current_user.permissions <= 1:
         flash('you do not have permission to delete this forum.', category='error')
     else:
+        if forum.reports:
+            for report in forum.reports:
+                db.session.delete(report)
+                db.session.commit()
+        if forum.members:
+            for member in forum.members:
+                db.session.delete(member)
+                db.session.commit()
+                
         db.session.delete(forum)
         db.session.commit()
         flash('forum has been deleted.', category='success')
@@ -92,4 +107,22 @@ def edit_forum(forum_id):
                 return redirect(url_for('views.forum', url=forum.url))
                 
     
-    return render_template('edit_forum.html', user=current_user, forum=forum)
+    return render_template('forums/edit_forum.html', user=current_user, forum=forum)
+
+@forums.route('/join-forum/<forum_id>/', methods=['POST'])
+@login_required
+def join_forum(forum_id):
+    forum = Forum.query.filter_by(id=forum_id).first()
+    member = ForumMember.query.filter_by(user_id=current_user.id, forum_id=forum.id).first()
+    
+    if not forum:
+        return jsonify({'error': 'Forum does not exist.'}, 400)
+    elif member and forum.creator != current_user.id:
+            db.session.delete(member)
+            db.session.commit()
+    elif forum.creator != current_user.id:
+        member = ForumMember(user_id=current_user.id, forum_id=forum.id)
+        db.session.add(member)
+        db.session.commit()
+        
+    return jsonify({'members': len(forum.members), 'joined': current_user.id in map(lambda x: x.user_id, forum.members)})

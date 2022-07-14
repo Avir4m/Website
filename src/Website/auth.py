@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 
 from . import db
-from .models import User, Post, Comment, Like, Saved
+from .models import User, Post, Comment, Like, Saved, Report, Forum, ForumMember, Follow
 from .func import send_email, get_secret_key
 
 auth = Blueprint('auth', __name__)
@@ -28,15 +28,16 @@ def login():
             remember = False
         
         user = User.query.filter_by(email=email).first()
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in successfully!', category='success')
-                login_user(user, remember=remember)
-                return redirect(url_for('views.home'))
-            else:
-                flash('Invalid password or email address, Please try again.', category='error')
+        if not user:
+            flash('No user with that email address.', category='error')
+        elif len(password) <= 1:
+            flash('You must enter your password.', category='error')
+        elif not check_password_hash(user.password, password):
+            flash('Invalid password or email address, Please try again.', category='error')
         else:
-            flash('Email does not exist.', category='error')
+            flash('Logged in successfully!', category='success')
+            login_user(user, remember=remember)
+            return redirect(url_for('views.home'))
         
     return render_template('login.html', user=current_user)
 
@@ -58,29 +59,33 @@ def sign_up():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         
+        
         user_email = User.query.filter_by(email=email).first()
-        user_name = User.query.filter_by(username=username).first()
+        user_username = User.query.filter_by(username=username).first()
         
         if user_email:
             flash('Email already exists.', category='error')
         elif len(email) < 4:
             flash('Email must be greater than 3 characters.', category='error')
-        elif user_name:
+        elif user_username:
             flash('Username already exists.', category='error')
-        elif username == '':
+        elif len(username) <= 1:
             flash('You must provide a username.', category='error')
-        elif len(first_name) < 2:
-            flash('First Name must be greater than 1 character.', category='error')
-        elif password1 != password2:
-            flash('Passwords don\'t match.', category='error')
-        elif len(password1) < 7:
-            flash('Password must be at least 6 characters.', category='error')
         elif ' ' in username:
             flash('You cannot have spaces in username.', category='error')
+        elif len(first_name) < 2:
+            flash('First Name must be greater than 1 character.', category='error')
+        elif len(password1) < 7:
+            flash('Password must be at least 6 characters.', category='error')
+        elif ' ' in password1:
+            flash('You cannot have spaces in password.', category='error')
+        elif password1 != password2:
+            flash('Passwords don\'t match.', category='error')
         else:
             new_user = User(email=email, username=username ,first_name=first_name, last_name=last_name, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
+            
             login_user(new_user, remember=True)
             flash('Account created!', category='success')
             return redirect(url_for('views.home'))
@@ -102,20 +107,24 @@ def change_password():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         
-        if check_password_hash(user.password, password):
-            if password1 != password2:
-                flash('Passwords don\'t match.', category='error')
-            elif check_password_hash(user.password, password1):
-                flash('New password can\'t be the same as the old one.', category='error')
-            elif len(password1) < 7:
-                flash('Password must be at least 6 characters.', category='error')
-            else:
-                current_user.password = generate_password_hash(password1, method='sha256')
-                db.session.commit()
-                flash('Password has been changed!', category='success')
-                return redirect(url_for('views.dashboard'))
-        else:
+        if not check_password_hash(user.password, password):
             flash('Invalid password, Please try again.', category='error')
+        elif password1 != password2:
+            flash('Passwords don\'t match.', category='error')
+        elif check_password_hash(user.password, password1):
+            flash('New password can\'t be the same as the old one.', category='error')
+        elif len(password1) < 1:
+            flash('You must provide a password.', category='error')
+        elif len(password1) < 7:
+            flash('Password must be at least 6 characters.', category='error')
+        elif ' ' in password1:
+            flash('You cannot have spaces in password.', category='error')
+        else:
+            current_user.password = generate_password_hash(password1, method='sha256')
+            db.session.commit()
+            flash('Password has been changed!', category='success')
+            return redirect(url_for('views.dashboard'))
+
             
     return render_template('change_password.html', user=current_user)
 
@@ -145,7 +154,8 @@ def reset_password(token):
     try:
         email = s.loads(token, salt='reset-password', max_age=600) # 600 Seconds (10 minutes)
         user = User.query.filter_by(email=email).first()
-        if user:
+        if not user:
+            flash('Invalid token', category='error')
             if request.method == 'POST':
                 password1 = request.form.get('password1')
                 password2 = request.form.get('password2')
@@ -164,8 +174,7 @@ def reset_password(token):
                 return render_template('reset_password.html', user=current_user)
             else:
                 return render_template('reset_password.html', user=current_user)
-        else:
-            flash('Invalid token', category='error')
+          
     except SignatureExpired:
         abort(404)
         
@@ -178,10 +187,10 @@ def verify_email():
 
     token = s.dumps(email, salt='email-confirm')
     link = url_for('auth.confirm_email', token=token, _external=True)
-    msg = f'Email confirmation\n {link}'
-    sub = 'Email confirmation'
-    send_email(email, msg, sub)
-    return redirect(url_for('views.dashboard', username=user.username))
+    text = f'{link}'
+    title = 'Email confirmation'
+    send_email(email, title, text)
+    return redirect(url_for('users.dashboard', username=user.username))
 
 @auth.route('/confirm_email/<token>/')
 @login_required
@@ -195,7 +204,7 @@ def confirm_email(token):
             flash('Account is now verified!', category='success')
             return redirect(url_for('views.home'))
         else:
-            flash('Invalid token', category='error')
+            abort(404)
     except SignatureExpired:
        abort(404)
 
@@ -211,6 +220,10 @@ def delete_user(user_id):
         Comment.query.filter_by(author=user.id).delete()
         Like.query.filter_by(author=user.id).delete()
         Saved.query.filter_by(author=user.id).delete()
+        Report.query.filter_by(author=user.id).delete()
+        ForumMember.query.filter_by(author=user.id).delete()
+        Follow.query.filter_by(author=user.id).delete()
+        Forum.query.filter_by(author=user.id).delete()
         db.session.delete(user)
         db.session.commit()
         flash(f'User {user.id} has been deleted!', category='success')
@@ -221,9 +234,9 @@ def delete_user(user_id):
             email = user.email
             token = s.dumps(email, salt='delete-user-confirm')
             link = url_for('auth.confirm_user_delete', token=token, _external=True)
-            msg = f'Delete user confirmation\n {link}'
-            sub = 'Delete User Confirmation'
-            send_email(email, msg, sub)
+            text = f'{link}'
+            title = 'Delete User Confirmation'
+            send_email(email, title, text)
             flash(f'We have sent you confirmation link to your email address.', category='success')
             return redirect(url_for('views.dashboard', username=user.username))
         else:
@@ -247,6 +260,6 @@ def confirm_user_delete(token):
             flash('Account has been deleted!', category='success')
             return redirect(url_for('auth.sign_up'))
         else:
-            flash('Invalid token', category='error')
+            abort(404)
     except SignatureExpired:
        abort(404)

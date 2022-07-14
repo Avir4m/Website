@@ -1,43 +1,42 @@
 # Website
 
-#### Version / 0.10 (Alpha)
+#### Version / 0.11 (Beta)
 
 <br/>
 
  * **Changes / Fixes**:
 
     * Hotfixes
-      * Cannot have spaces in username
-      * Fixed copy link on post
-      * Dashboard description default value
+      * When adding a picture to post
+      * Html values/links
+      * Changed the way the remove profile picture button works
+      * Added HTML template when sending emails
     <br/>
 
-    * Added forums
-      * Forums routes
-      * A way to create / delete / edit Forums
-      * Make a post on a forum
-      * Admin dashboard table
+    * Pages / Routes
+      * Added liked page to see your liked posts
+      * Added saved page to see your saved posts
+      * Added settings page (WIP)
+      * Added Bad request (400) route
     <br/>
 
-    * Added report system
-      * You can report posts/forms
-      * Admin can see reports in the admin dashboard
+      * Reports
+        * Added a way to report comments
+        * Admin report page for comment reports
+        * Changed the way querying reports work
     <br/>
 
-    * Added darkmode (beta)
-      * Save preference in local storage
-      * Two different css files to change between
+    * Forum Members
+      * You can join/leave forums now
     <br/>
 
-    * Pictues
-      * You can upload your own profile picture
-      * A way restore to the default profile picture
-      * Have a picture on your forum
-      * Upload a picture to your post
-    <br/>
+    * Following
+      * You can follow/unfollow a user
 
-    * Created a trello board
-      * you can see what im working on / future plans
+    * API
+      * Started working on a api
+
+    * To see future plans / what I'm working on right now.
       * [Click here](https://trello.com/b/6Xh0QihV)
     <br/>
 

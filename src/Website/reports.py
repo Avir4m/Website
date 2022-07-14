@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 
 
-from .models import Post, Report, Forum
+from .models import Post, Report, Forum, Comment
 from .func import create_url
 from . import db
 
@@ -45,3 +45,23 @@ def report_forum(url):
         return redirect(url_for('views.forum', url=url))
     
     return render_template('reports/forum.html', user=current_user, forum=forum)
+
+
+@reports.route('/create-report/comment/<id>/', methods=['POST', 'GET'])
+@login_required
+def report_comment(id):
+    comment = Comment.query.filter_by(id=id).first()
+    if not comment:
+        abort(404)
+    
+    if request.method == 'POST':
+        description = request.form.get('description')
+        reason = request.form.get('reason')
+        
+        report = Report(description=description, reason=reason, author=current_user.id, comment_id=id)
+        db.session.add(report)
+        db.session.commit()
+        flash('Comment has been reported!', category='success')
+        return redirect(url_for('views.post', url=comment.post.url))
+    
+    return render_template('reports/comment.html', user=current_user, comment=comment)

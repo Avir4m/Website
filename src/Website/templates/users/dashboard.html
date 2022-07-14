@@ -2,16 +2,15 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>Dashboard</h2>
-	<br/>
-
 <div class="card">
   <div class="card-header">
-    Account Details
+	<div class="subtext">
+		Account Details
+	</div>
   </div>
 	<div class="card-body">
 
-		<div class="container">
+		<div class="info">
 			<div class="row">
 			<div class="col-8">
 
@@ -48,8 +47,9 @@
 			</div>
 
 			<div class="col-4">
-				<a href="{{ url_for('views.remove_profile_picture', username=user.username) }}" class="removePicture">Remove Picture</a>
+				<p onclick="removeProfilePic('{{ user.username }}')" class="removePicture">Remove Picture</p>
 				<img 
+				id="Picture"
 				align="right" 
 				src="{{ url_for('static', filename='images/upload_folder/users/' + user.picture) }}" 
 				class="img-fluid"
@@ -77,7 +77,9 @@
 
 <div class="card">
 	<div class="card-header">
-	  Update Profile
+		<div class="subtext">
+			Update Profile
+		</div>
 	</div>
 	<div class="card-body">
 	<form method="POST" enctype="multipart/form-data">
@@ -134,7 +136,7 @@
 			<label for="file">Upload Profile Picture</label>
 			<input 
 			type="file" 
-			class="form-control-file" 
+			class="form-control" 
 			id="profilePicture"
 			name="file"
 			accept="image/*"/><br/>
@@ -147,11 +149,15 @@
 	</div>
 </div>
 <script>
+	preview.style.display = 'none';
     profilePicture.onchange = evt => {
         const [file] = profilePicture.files
         if (file) {
             preview.src = URL.createObjectURL(file)
-        }
+			preview.style.display = 'block';
+        } else {
+			preview.style.display = 'none';
+		}
       }
 </script>
 <br/>

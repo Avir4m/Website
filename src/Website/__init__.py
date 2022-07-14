@@ -10,7 +10,7 @@ with open("files/SECRET_KEY.txt", "r") as f:
     f.close()
 
 DB_NAME = "database.db"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'mp4'}
 
 
 
@@ -19,25 +19,34 @@ def create_app():
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JSON_SORT_KEYS'] = False
     db.init_app(app)
     
     from .views import views
     from .auth import auth
+    from .users import users
     from .posts import posts
     from .comments import comments
     from .forums import forums
     from .reports import reports
+    
     from .errors import errors
     from .admin import admin
+    
+    from .api import api
      
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(users, url_prefix='/')
     app.register_blueprint(posts, url_prefix='/')
     app.register_blueprint(comments, url_prefix='/')
     app.register_blueprint(forums, url_prefix='/')
     app.register_blueprint(reports, url_prefix='/')
+    
     app.register_blueprint(errors, url_prefix='/')
     app.register_blueprint(admin, url_prefix='/admin')
+    
+    app.register_blueprint(api, url_prefix='/api')
     
     from .models import User
     
